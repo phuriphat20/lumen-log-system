@@ -2,6 +2,7 @@ import React, { useState , useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../services/api';
 import Navbar from '../components/Navbar';
+import FilterSection from '../components/FilterSection';
 
 
 const DashboardPage = () => {
@@ -19,6 +20,7 @@ const DashboardPage = () => {
     return (
         <div className="min-h-screen bg-[#e9edf1] font-sans text-[#1E293B]">
             <Navbar/>
+            <FilterSection/>
         </div>
     );
 }

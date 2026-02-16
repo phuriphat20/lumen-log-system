@@ -33,9 +33,11 @@ const LoginPage = () => {
         try{
             const res = await API.login(username, password);
 
-            localStorage.setItem('token', res.data.token);
-            localStorage.setItem('userLevel', res.data.level); 
-            localStorage.setItem('username', username);
+                localStorage.setItem('token', res.data.token);
+                localStorage.setItem('userLevel', res.data.level); 
+                localStorage.setItem('username', username);
+                localStorage.setItem('userId', res.data.userId);
+            
 
             navigate('/dashboard');
         } catch (err) {
