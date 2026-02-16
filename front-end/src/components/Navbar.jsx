@@ -10,8 +10,11 @@ const Navbar = () => {
     const initial = username ? username.charAt(0) : 'U';
 
     const handleLogout = () => {
-        localStorage.clear();
-        navigate('/login');
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        localStorage.removeItem('userLevel');
+
+        navigate('/login' , { replace: true });
     };
 
     return (
