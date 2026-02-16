@@ -1,6 +1,6 @@
 import React, { useState , useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import * as API from '../services/api';
+import API from '../services/api';
 import TextInput from '../components/TextInput';
 import { User, Lock, Loader2 } from 'lucide-react';
 

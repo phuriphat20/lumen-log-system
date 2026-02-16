@@ -16,6 +16,6 @@ API.interceptors.request.use(config => {
 
 API.login = (username, password) => API.post('/auth/login', { username, password });
 API.fetchLogs = (params) => API.get('/logs', { params });
-API.fetchUsers = () => API.get('/users'); 
+API.fetchUsers = () => API.get('/users');
 
 export default API;
