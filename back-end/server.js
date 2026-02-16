@@ -10,6 +10,7 @@ app.use(express.json());
 
 app.use('/api/auth' , require('./routes/authRoutes')) ;
 app.use('/api/logs' , require('./routes/logRoutes')) ;
+app.use('/api/users' , require('./routes/userRoutes')) ;
 
 // Test Route
 app.get('/', (req, res) => {
