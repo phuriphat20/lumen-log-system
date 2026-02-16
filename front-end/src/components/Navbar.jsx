@@ -33,10 +33,10 @@ const Navbar = () => {
             <div className="flex items-center gap-6">
                 <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-linear-to-tr from-[#3674d8] to-[#5691f1] flex items-center justify-center border-2 border-white/10 shadow-inner">
-                        <span className="text-white font-bold text-sm">{initial}</span>
+                        <span className="text-white font-bold text-sm uppercase">{initial}</span>
                     </div>
                     <div className="text-right hidden sm:block">
-                        <p className="text-sm font-bold text-[#1E293B] leading-none">{username}</p>
+                        <p className="text-sm font-bold text-[#1E293B] leading-none uppercase">{username}</p>
 
                     </div>                    
                     <span className="inline-block mt-1 px-2 py-0.5 bg-blue-50 text-[#3B82F6] text-[10px] font-bold rounded-md uppercase border border-blue-100">
