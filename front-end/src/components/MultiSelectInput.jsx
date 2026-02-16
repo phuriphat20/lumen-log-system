@@ -43,7 +43,7 @@ const MultiSelectInput = ({
     return (
         <div className='flex flex-col gap-2 w-full relative' ref={containerRef}>
             {label && (
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">
+                <label className="text-[10px] font-bold text-[#1E293B] uppercase tracking-[0.2em] ml-1">
                     {label}
                 </label>
             )}
@@ -98,9 +98,8 @@ const MultiSelectInput = ({
                 </div>
             </div>
 
-            {/* Dropdown Menu */}
             {isOpen && (
-                <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-white border border-[#E2E8F0] rounded-2xl shadow-xl z-50 py-2 max-h-64 overflow-y-auto animate-in fade-in slide-in-from-top-2">
+                <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-white border border-[#E2E8F0] rounded-2xl shadow-xl z-50 py-2 max-h-64  overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-top-2">
                     <div 
                         onClick={() => {
                             onChange([]); 
