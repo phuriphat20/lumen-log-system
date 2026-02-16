@@ -37,7 +37,7 @@ const FillterSection = ({
     }, [setFilters]);
 
     return (
-        <div className='bg-white border border-[#E2E8F0] mx-10 my-5 rounded-2xl shadow-sm relative z-10'>
+        <div className='bg-white border border-[#E2E8F0] mx-10 my-5 rounded-2xl shadow-sm relative z-50'>
             <div className="flex items-center gap-2 text-[#3B82F6] px-6 py-2 border-b border-slate-100">
                 <Filter size={18} />
                 <h3 className="font-bold uppercase tracking-widest text-xs">Advanced Filters</h3> 
@@ -55,12 +55,12 @@ const FillterSection = ({
                     />
                     <div className="flex flex-col gap-1">
                         <label className="text-[10px] font-bold text-[#1E293B] uppercase tracking-widest ml-1">Start Date</label>
-                        <input type="datetime-local" className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none h-10"
+                        <input type="datetime-local" className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl mt-3 px-4 py-2.5 text-sm focus:border-blue-500 outline-none h-10"
                             value={filters.startTime} onChange={(e) => handleChange('startTime', e.target.value)} />
                     </div>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-1">
                         <label className="text-[10px] font-bold text-[#1E293B] uppercase tracking-widest ml-1">End Date</label>
-                        <input type="datetime-local" className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none h-10"
+                        <input type="datetime-local" className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl mt-3 px-4 py-2.5 text-sm focus:border-blue-500 outline-none h-10"
                            value={filters.endTime} onChange={(e) => handleChange('endTime', e.target.value)} />
                     </div>
                     <div className={`${!isAdmin ? 'opacity-70' : ''}`}>
@@ -105,7 +105,7 @@ const FillterSection = ({
                     />
                 </div>
 
-                <div className="lg:w-48 flex flex-col gap-3 justify-end">
+                <div className="lg:w-48 flex shrink-0 flex-col gap-3 justify-end">
                     <button 
                         onClick={() => onSearch(filters)} 
                         className="w-full h-10 bg-[#4686f3] gap-2 hover:bg-blue-600 text-white font-bold py-3 mb-10 rounded-xl shadow-lg shadow-blue-100 flex items-center justify-center transition-all active:scale-95"

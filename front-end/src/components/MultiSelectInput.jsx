@@ -63,7 +63,7 @@ const MultiSelectInput = ({
                     </div>
                 )}
 
-                <div className="flex flex-nowrap gap-1.5 flex-1 overflow-x-auto overflow-y-hidden custom-scrollbar py-1">
+                <div className="flex flex-nowrap h-8 gap-1.5 flex-1 overflow-x-auto overflow-y-hidden custom-scrollbar py-1">
                     {selectedValues.length === 0 ? (
                         <span className="text-sm text-slate-400 self-center">{placeholder}</span>
                     ) : (

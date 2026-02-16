@@ -19,7 +19,7 @@ const Navbar = () => {
     };
 
     return (
-        <nav className="bg-[#ffffff] border-b border-[#E2E8F0] px-8 py-3 flex justify-between items-center sticky top-0 z-50 shadow-sm shadow-slate-100/50">
+        <nav className="bg-[#ffffff] border-b border-[#E2E8F0] px-8 py-3 flex justify-between items-center sticky top-0 z-100 shadow-sm shadow-slate-100/50">
             <div className="flex items-center gap-3">
                 <div className='bg-[#2e6ed5] w-10 h-10 rounded-xl flex items-center justify-center shadow-lg shadow-blue-100'>
                    <span className='text-white text-3xl font-bold'>L</span>
