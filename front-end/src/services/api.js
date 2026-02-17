@@ -3,7 +3,6 @@ import axios from 'axios';
 const API = axios.create({
   baseURL: 'http://localhost:5000/api',
 });
-
 API.interceptors.request.use(config => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -14,8 +13,29 @@ API.interceptors.request.use(config => {
   return Promise.reject(error);
 });
 
+API.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      console.warn("Session Expired. Redirecting to Login...");
+
+      localStorage.removeItem('token');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userLevel');
+      localStorage.removeItem('username');
+
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 API.login = (username, password) => API.post('/auth/login', { username, password });
-API.searchLogs = (params) => API.get('/logs', { params }); 
+API.searchLogs = (params) => API.get('/logs', { params });
 API.fetchUsers = () => API.get('/users');
 
 export default API;
