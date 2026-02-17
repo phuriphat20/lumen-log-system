@@ -27,10 +27,10 @@ const FillterSection = ({
     }, [users, currentUserId]);
 
     const actionOptions = [
-        "labOrder", "labResult", "receive", "accept", "approve", 
-        "reapprove", "unapprove", "unreceive", "rerun", "save", 
-        "listTransactions", "getTransaction", "analyzerResult", "analyzerRequest"
-    ].sort();
+        "labOrder", "labResult", "receive", "accept", "approve", "reapprove", 
+        "unapprove", "unreceive", "rerun", "save", "listTransactions", 
+        "getTransaction", "analyzerResult", "analyzerRequest"
+    ];
 
     const handleChange = useCallback((field, value) => {
         setFilters(prev => ({ ...prev, [field]: value }));
