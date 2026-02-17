@@ -133,7 +133,7 @@ const LogTable = ({
                             <SortableHeader title="Action" field="action" width="w-32" />
                             <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Lab Number</th>
                             <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest w-28">Status</th>
-                            <th className="pl-5 py-4 text-left pr-10 text-[10px] font-black text-slate-400 uppercase tracking-widest w-32">Massage</th>
+                            <th className="pl-5 py-4 text-left pr-10 text-[10px] font-black text-slate-400 uppercase tracking-widest w-32">Message</th>
                             <SortableHeader title="Time (ms)" field="response.timeMs" width="w-38" />
                         </tr>
                     </thead>

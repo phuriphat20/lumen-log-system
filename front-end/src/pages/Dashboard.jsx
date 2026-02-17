@@ -40,43 +40,39 @@ const DashboardPage = () => {
 
     const [filters, setFilters] = useState({
         action: [],
-        startTime: getTodayWithTime(0, 0),
+        startTime: "2024-01-01T00:00",
         endTime: getTodayWithTime(23, 59),
         userId: isAdmin ? [] : currentUserId ? [currentUserId] : [],
         labNumber: "",
         statusCode: "",
-        minTimeMs: 0,
-        maxTimeMs: 999999,
+        minTimeMs: "",
+        maxTimeMs: ""
     });
 
     const sortedLogs = useMemo(() => {
-        if (!logs || logs.length === 0 || !filters.sortBy || !filters.order) {
-            return logs;
-        }
-        const isAsc = filters.order === "asc";
+        if (!logs.length || !filters.sortBy || !filters.order) return logs;
 
         return [...logs].sort((a, b) => {
+            const isAsc = filters.order === "asc";
+            const field = filters.sortBy;
 
-            if (filters.sortBy === "action") {
+            if (field === "action") {
                 const idxA = ACTION_PRIORITY.indexOf(a.action);
                 const idxB = ACTION_PRIORITY.indexOf(b.action);
-                const wA = idxA === -1 ? 999 : idxA;
-                const wB = idxB === -1 ? 999 : idxB;
-                return isAsc ? wA - wB : wB - wA;
+                return isAsc ? idxA - idxB : idxB - idxA;
             }
 
-            if (filters.sortBy === "response.timeMs") {
+            if (field === "response.timeMs") {
                 const numA = Number(a.response?.timeMs) || 0;
                 const numB = Number(b.response?.timeMs) || 0;
                 return isAsc ? numA - numB : numB - numA;
             }
 
-            if (filters.sortBy === "timestamp") {
+            if (field === "timestamp") {
                 const tA = new Date(a.timestamp?.$date || a.timestamp).getTime();
                 const tB = new Date(b.timestamp?.$date || b.timestamp).getTime();
                 return isAsc ? tA - tB : tB - tA;
             }
-
             return 0;
         });
     }, [logs, filters.sortBy, filters.order]);
@@ -105,18 +101,33 @@ const DashboardPage = () => {
     const handleSearch = useCallback(async (currentFilters) => {
         try {
             setLoading(true);
-            const res = await API.searchLogs(currentFilters);
 
+            setFilters(prev => ({
+                ...prev,
+                ...currentFilters
+            }));
+            const apiParams = {
+                ...currentFilters,
+                action: Array.isArray(currentFilters.action)
+                    ? currentFilters.action.join(',')
+                    : currentFilters.action,
+                userId: Array.isArray(currentFilters.userId)
+                    ? currentFilters.userId.join(',')
+                    : currentFilters.userId,
+                startDate: currentFilters.startDate || currentFilters.startTime,
+                endDate: currentFilters.endDate || currentFilters.endTime,
+                minTime: currentFilters.minTime || currentFilters.minTimeMs,
+                maxTime: currentFilters.maxTime || currentFilters.maxTimeMs,
+            };
+
+            console.log("Sending API Params:", apiParams);
+
+            const res = await API.searchLogs(apiParams);
             setLogs(res.data.logs || []);
             setTotalResults(res.data.total || 0);
-            setPagination({
-                page: currentFilters.page || 1,
-                totalPages: res.data.totalPages || 1,
-                limit: currentFilters.limit || 50,
-            });
+
         } catch (err) {
-            console.error(err);
-            setError("Failed to fetch logs");
+            console.error("Search Error:", err);
         } finally {
             setLoading(false);
         }
@@ -131,7 +142,7 @@ const DashboardPage = () => {
     const handleSortChange = (field, order) => {
         const updatedFilters = {
             ...filters,
-            sortBy: field,
+            sortBy: order ? field : "",
             order: order || "",
             page: 1,
         };
@@ -142,17 +153,24 @@ const DashboardPage = () => {
     };
 
     const handleReset = useCallback(() => {
-        setFilters({
+        const defaultFilters = {
             action: [],
-            startTime: getTodayWithTime(0, 0),
+            startTime: "2024-01-01T00:00",
             endTime: getTodayWithTime(23, 59),
-            userId: isAdmin ? [] : currentUserId ? [currentUserId] : [],
+            userId: isAdmin ? [] : (currentUserId ? [currentUserId] : []),
             labNumber: "",
             statusCode: "",
             minTimeMs: 0,
             maxTimeMs: 999999,
-        });
-    }, [getTodayWithTime, isAdmin, currentUserId]);
+            page: 1,
+            limit: 50,
+            sortBy: "",
+            order: ""
+        };
+        setFilters(defaultFilters);
+        handleSearch(defaultFilters);
+
+    }, [getTodayWithTime, isAdmin, currentUserId, handleSearch]);
 
     return (
         <div className="min-h-screen bg-[#e9edf1] font-sans text-[#1E293B]">
