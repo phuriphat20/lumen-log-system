@@ -1,82 +1,72 @@
-const Log = require('../models/Log') ;
-const User = require('../models/User') ;
+const Log = require('../models/Log');
+const User = require('../models/User');
+const mongoose = require('mongoose');
 
-exports.getLogs = async (req , res) => {
-    try{
+exports.getLogs = async (req, res) => {
+    try {
         const {
-            action ,
-            startDate ,
-            endDate ,
-            userId ,
-            statusCode ,
-            labnumber ,
-            minTime ,
-            maxTime ,
-            sortBy ,
-            order ,
-            page = 1 ,
-            limit = 50
-        } = req.query ;
+            action, startDate, endDate, userId,
+            statusCode, labnumber, minTime, maxTime,
+            sortBy, order, page = 1, limit = 50
+        } = req.query;
 
-        let query = {} ;
+        let query = {};
 
-        // 1 . Filter by action
-        if(action && action !== 'all'){
-            query.action = action ;
+        // Action Filter 
+        if (action && action !== 'all' && action !== '') {
+            const actionArray = Array.isArray(action) ? action : action.split(',');
+            query.action = { $in: actionArray.map(a => new RegExp(`^${a}$`, 'i')) };
         }
-        // 2 . Filter by date range
-        if(startDate && endDate){
+        // Date Range
+        if (startDate && endDate) {
             query.timestamp = {
-                $gte : new Date(startDate) ,
-                $lte : new Date(endDate)
-            } ;
+                $gte: new Date(startDate),
+                $lte: new Date(endDate)
+            };
         }
-        // 3 . Filter by userId
-        if(userId && userId !== 'all'){
-            query.userId = userId ;
-        } 
-        // 4 . Filter by status code
-        if(statusCode){
-            query['response.statusCode'] = Number(statusCode) ;
-        }
-        // 5 . Filter by lab number
-        if(labnumber){
-            query.labnumber = {$in : [labnumber]} ;
-        }
-        // 6 . Filter by response time
-        query['response.timeMs'] = {
-            $gte : minTime ? Number(minTime) : 0 ,
-            $lte : maxTime ? Number(maxTime) : Number.MAX_SAFE_INTEGER
-        } ;
-        // 7. // Security Check: Filter out logs from soft-deleted users
-        const activeUsers = await User.find({isDel : false}).select('_id') ;
-        const activeUserIds = activeUsers.map(user => user._id) ;
-        if(activeUserIds.length === 0){
-            return res.status(404).json({msg : 'No active users found'}) ;
-        }
-        query.userId = {$in : activeUserIds , ...(query.userId && { $eq : query.userId } )
-        } ;
-        // Sorting
-        let sortOption = {} ;
-        if(sortBy){
-            sortOption[sortBy] = order === 'desc' ? -1 : 1 ;
-        }else{
-            sortOption = {timestamp : -1} ;
-        }
-        // Pagination
-        const logs = await Log.find(query)
-            .populate('userId' , 'prefix firstname lastname isDel')
-            .sort(sortOption)
-            .limit(Number(limit))
-            .skip((Number(page) - 1) * Number(limit)) ;
 
-        const total = await Log.countDocuments(query) ;
-        res.json({
-            logs ,
-            total ,
-            pages : Math.ceil(total / limit) ,
-        }) ;
-    }catch(err){
-        res.status(500).json({msg : 'Error fetching logs', error : err.message}) ;
+        let queryUserId = {};
+
+        const activeUsers = await User.find({ isDel: false }).select('_id');
+        const activeUserIds = activeUsers.map(u => u._id.toString());
+        let selectedIds = [];
+
+        if (userId && userId !== 'all' && userId !== '') {
+            selectedIds = Array.isArray(userId) ? userId : userId.split(',');
+        }
+
+        if (selectedIds.length > 0) {
+            const validObjectIds = selectedIds
+                .filter(id => activeUserIds.includes(id) && mongoose.Types.ObjectId.isValid(id))
+                .map(id => new mongoose.Types.ObjectId(id));
+            query.userId = { $in: validObjectIds };
+        } else {
+
+            query.userId = { $in: activeUserIds.map(id => new mongoose.Types.ObjectId(id)) };
+        }
+        // StatusCode & LabNumber
+        if (statusCode) query['response.statusCode'] = Number(statusCode);
+        if (labnumber) query.labnumber = labnumber;
+
+        // Response Time
+        query['response.timeMs'] = {
+            $gte: minTime ? Number(minTime) : 0,
+            $lte: maxTime ? Number(maxTime) : Number.MAX_SAFE_INTEGER
+        };
+
+        // Execute
+        const skip = (Number(page) - 1) * Number(limit);
+        const logs = await Log.find(query)
+            .populate('userId', 'prefix firstname lastname isDel')
+            .sort(sortBy ? { [sortBy]: order === 'desc' ? -1 : 1 } : { timestamp: -1 })
+            .limit(Number(limit))
+            .skip(skip);
+
+        const total = await Log.countDocuments(query);
+        res.json({ logs, total, pages: Math.ceil(total / Number(limit)) });
+
+    } catch (err) {
+        console.error("🔥 Server Error:", err.message);
+        res.status(500).json({ msg: 'Internal Server Error', error: err.message });
     }
-}
+};
