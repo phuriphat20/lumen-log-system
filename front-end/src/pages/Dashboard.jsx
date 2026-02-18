@@ -238,7 +238,7 @@ const DashboardPage = () => {
                 onPageChange={handlePageChange}
                 onLimitChange={handleLimitChange}
                 onExportExcel={() => handExport('excel')}
-                onExportPDF={() => handExport('pdf')}
+                onExportPDF={() => handleExport('pdf')}
             />
         </div>
     );
