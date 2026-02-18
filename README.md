@@ -23,6 +23,7 @@ Database: MongoDB Atlas
    MONGO_URI=your_mongodb_connection_string
    JWT_SECRET=your_secret_key_for_JWT
    PORT=10000
+4. รันโปรเจกต์: node server.js
 
 ### Frontend Setup
 1. เข้าไปที่โฟลเดอร์: cd front-end
