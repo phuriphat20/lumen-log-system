@@ -15,39 +15,52 @@ const DashboardPage = () => {
     const [logs, setLogs] = useState([]);
     const [totalResults, setTotalResults] = useState(0);
     const [users, setUsers] = useState([]);
-    const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-    const [pagination, setPagination] = useState({
-        page: 1,
-        totalPages: 1,
-        limit: 50,
-    });
     const navigate = useNavigate();
-
-    const getTodayWithTime = useCallback((hours, minutes) => {
-        const date = new Date();
-        date.setHours(hours, minutes, 0, 0);
-        const offset = date.getTimezoneOffset() * 60000;
-        return new Date(date - offset).toISOString().slice(0, 16);
-    }, []);
 
     const isAdmin = useMemo(() => {
         const level = localStorage.getItem("userLevel");
-
         return level?.toLowerCase() === "admin";
     }, []);
     const currentUserId = useMemo(() => localStorage.getItem("userId"), []);
 
-    const [filters, setFilters] = useState({
-        action: [],
-        startTime: "2024-01-01T00:00",
-        endTime: getTodayWithTime(23, 59),
-        userId: isAdmin ? [] : currentUserId ? [currentUserId] : [],
-        labNumber: "",
-        statusCode: "",
-        minTimeMs: "",
-        maxTimeMs: ""
+    const getDefaultFilters = useCallback(() => {
+        const date = new Date();
+        date.setHours(23, 59, 0, 0);
+        const offset = date.getTimezoneOffset() * 60000;
+        const todayEnd = new Date(date - offset).toISOString().slice(0, 16);
+
+        return {
+            action: [],
+            startTime: "2024-01-01T00:00",
+            endTime: todayEnd,
+            userId: isAdmin ? [] : (currentUserId ? [currentUserId] : []),
+            labNumber: "",
+            statusCode: "",
+            minTimeMs: "",
+            maxTimeMs: "",
+            page: 1,
+            limit: 50,
+            sortBy: "",
+            order: ""
+        };
+    }, [isAdmin, currentUserId]);
+
+    const [filters, setFilters] = useState(() => {
+        try {
+            const savedFilters = localStorage.getItem("dashboard_filters");
+            if (savedFilters) {
+                return JSON.parse(savedFilters);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+        return getDefaultFilters();
     });
+
+    useEffect(() => {
+        localStorage.setItem("dashboard_filters", JSON.stringify(filters));
+    }, [filters]);
 
     const sortedLogs = useMemo(() => {
         if (!logs.length || !filters.sortBy || !filters.order) return logs;
@@ -80,32 +93,16 @@ const DashboardPage = () => {
     const fetchUsers = useCallback(async () => {
         try {
             const res = await API.fetchUsers();
-            console.log("All Users Data:", res.data);
             setUsers(res.data || []);
         } catch (err) {
             console.error(err);
-            setError("Failed to fetch users");
         }
     }, []);
-
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            navigate("/login", { replace: true });
-        } else {
-            fetchUsers();
-            handleSearch(filters);
-        }
-    }, [navigate, fetchUsers]);
 
     const handleSearch = useCallback(async (currentFilters) => {
         try {
             setLoading(true);
 
-            setFilters(prev => ({
-                ...prev,
-                ...currentFilters
-            }));
             const apiParams = {
                 ...currentFilters,
                 action: Array.isArray(currentFilters.action)
@@ -118,9 +115,10 @@ const DashboardPage = () => {
                 endDate: currentFilters.endDate || currentFilters.endTime,
                 minTime: currentFilters.minTime || currentFilters.minTimeMs,
                 maxTime: currentFilters.maxTime || currentFilters.maxTimeMs,
+                labnumber: currentFilters.labNumber,
+                page: currentFilters.page || 1,
+                limit: currentFilters.limit || 50
             };
-
-            console.log("Sending API Params:", apiParams);
 
             const res = await API.searchLogs(apiParams);
             setLogs(res.data.logs || []);
@@ -133,8 +131,24 @@ const DashboardPage = () => {
         }
     }, []);
 
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            navigate("/login", { replace: true });
+        } else {
+            fetchUsers();
+            handleSearch(filters);
+        }
+    }, [navigate, fetchUsers]); 
+
     const handlePageChange = (newPage) => {
         const updatedFilters = { ...filters, page: newPage };
+        setFilters(updatedFilters);
+        handleSearch(updatedFilters);
+    };
+
+    const handleLimitChange = (newLimit) => {
+        const updatedFilters = { ...filters, limit: newLimit, page: 1 };
         setFilters(updatedFilters);
         handleSearch(updatedFilters);
     };
@@ -153,24 +167,10 @@ const DashboardPage = () => {
     };
 
     const handleReset = useCallback(() => {
-        const defaultFilters = {
-            action: [],
-            startTime: "2024-01-01T00:00",
-            endTime: getTodayWithTime(23, 59),
-            userId: isAdmin ? [] : (currentUserId ? [currentUserId] : []),
-            labNumber: "",
-            statusCode: "",
-            minTimeMs: 0,
-            maxTimeMs: 999999,
-            page: 1,
-            limit: 50,
-            sortBy: "",
-            order: ""
-        };
+        const defaultFilters = getDefaultFilters();
         setFilters(defaultFilters);
         handleSearch(defaultFilters);
-
-    }, [getTodayWithTime, isAdmin, currentUserId, handleSearch]);
+    }, [getDefaultFilters, handleSearch]);
 
     return (
         <div className="min-h-screen bg-[#e9edf1] font-sans text-[#1E293B]">
@@ -191,11 +191,13 @@ const DashboardPage = () => {
                 onSort={handleSortChange}
                 sortBy={filters.sortBy}
                 order={filters.order}
-                pagination={{ page: filters.page, limit: filters.limit, totalPages: Math.ceil(totalResults / (filters.limit || 50)) }}
-
-                onPageChange={(p) => { const u = { ...filters, page: p }; setFilters(u); handleSearch(u); }}
-
-                onLimitChange={(l) => { const u = { ...filters, limit: l, page: 1 }; setFilters(u); handleSearch(u); }}
+                pagination={{ 
+                    page: filters.page, 
+                    limit: filters.limit, 
+                    totalPages: Math.ceil(totalResults / (filters.limit || 50)) 
+                }}
+                onPageChange={handlePageChange}
+                onLimitChange={handleLimitChange}
             />
         </div>
     );

@@ -45,8 +45,12 @@ exports.getLogs = async (req, res) => {
             query.userId = { $in: activeUserIds.map(id => new mongoose.Types.ObjectId(id)) };
         }
         // StatusCode & LabNumber
-        if (statusCode) query['response.statusCode'] = Number(statusCode);
-        if (labnumber) query.labnumber = labnumber;
+        if (statusCode) {
+            query['response.statusCode'] = Number(statusCode);
+        }
+        if (labnumber) {
+            query.labnumber = { $regex: labnumber, $options: 'i' };
+        }
 
         // Response Time
         query['response.timeMs'] = {

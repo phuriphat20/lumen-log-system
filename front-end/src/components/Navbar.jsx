@@ -14,6 +14,7 @@ const Navbar = () => {
         localStorage.removeItem('username');
         localStorage.removeItem('userLevel');
         localStorage.removeItem('userId');
+        localStorage.removeItem('dashboard_filters');
 
         navigate('/login' , { replace: true });
     };
