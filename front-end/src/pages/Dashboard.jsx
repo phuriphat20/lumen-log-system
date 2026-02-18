@@ -4,6 +4,7 @@ import API from "../services/api";
 import Navbar from "../components/Navbar";
 import FilterSection from "../components/FilterSection";
 import LogTable from "../components/LogTable";
+import { exportToExcel, exportToPDF } from "../utils/exportHelper";
 
 const ACTION_PRIORITY = [
     "labOrder", "labResult", "receive", "accept", "approve", "reapprove",
@@ -139,7 +140,7 @@ const DashboardPage = () => {
             fetchUsers();
             handleSearch(filters);
         }
-    }, [navigate, fetchUsers]); 
+    }, [navigate, fetchUsers]);
 
     const handlePageChange = (newPage) => {
         const updatedFilters = { ...filters, page: newPage };
@@ -172,6 +173,44 @@ const DashboardPage = () => {
         handleSearch(defaultFilters);
     }, [getDefaultFilters, handleSearch]);
 
+    const handExport = useCallback(async (type) => {
+        try {
+            setLoading(true);
+
+            const exportParams = {
+                ...filters,
+                action: Array.isArray(filters.action) ? filters.action.join(',') : filters.action,
+                userId: Array.isArray(filters.userId) ? filters.userId.join(',') : filters.userId,
+                startDate: filters.startDate || filters.startTime,
+                endDate: filters.endDate || filters.endTime,
+                minTime: filters.minTime || filters.minTimeMs,
+                maxTime: filters.maxTime || filters.maxTimeMs,
+                labnumber: filters.labNumber,
+                page: 1,
+                limit: 1000000
+            };
+            const res = await API.searchLogs(exportParams);
+            const allLogs = res.data.logs || [];
+
+            if (allLogs.length === 0) {
+                alert("No data to export with current filters.");
+                return;
+            }
+
+            if (type === 'excel') {
+                exportToExcel(allLogs, 'Log_Report');
+            } else if (type === 'pdf') {
+                exportToPDF(allLogs, 'Log_Report');
+            }
+        } catch (err) {
+            console.error("Export Error:", err);
+            alert("Failed to export data. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+
+    }, [filters]);
+
     return (
         <div className="min-h-screen bg-[#e9edf1] font-sans text-[#1E293B]">
             <Navbar />
@@ -191,13 +230,15 @@ const DashboardPage = () => {
                 onSort={handleSortChange}
                 sortBy={filters.sortBy}
                 order={filters.order}
-                pagination={{ 
-                    page: filters.page, 
-                    limit: filters.limit, 
-                    totalPages: Math.ceil(totalResults / (filters.limit || 50)) 
+                pagination={{
+                    page: filters.page,
+                    limit: filters.limit,
+                    totalPages: Math.ceil(totalResults / (filters.limit || 50))
                 }}
                 onPageChange={handlePageChange}
                 onLimitChange={handleLimitChange}
+                onExportExcel={() => handExport('excel')}
+                onExportPDF={() => handExport('pdf')}
             />
         </div>
     );

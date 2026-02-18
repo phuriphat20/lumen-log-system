@@ -20,7 +20,9 @@ const LogTable = ({
     onSort,
     onLimitChange,
     sortBy,
-    order
+    order,
+    onExportExcel,
+    onExportPDF
 }) => {
     const { page: currentPage, totalPages, limit } = pagination;
     const [expandedRow, setExpandedRow] = useState(null);
@@ -113,10 +115,12 @@ const LogTable = ({
                     </span>
                 </div>
                 <div className="flex gap-2">
-                    <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all active:scale-95">
+                    <button
+                        onClick={onExportPDF}
+                        className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all active:scale-95">
                         <FileText size={14} className="text-red-500" /> Export PDF
                     </button>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all active:scale-95">
+                    <button onClick={onExportExcel} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all active:scale-95">
                         <FileSpreadsheet size={14} className="text-green-500" /> Export Excel
                     </button>
                 </div>
