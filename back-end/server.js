@@ -6,10 +6,15 @@ require('dotenv').config();
 const app = express();
 
 app.use(cors({
-  origin: ['https://lumen-log-system-ui.vercel.app', 'http://localhost:5173'], 
+  origin: [
+    'https://lumen-log-system-ui.vercel.app', 
+    'https://lumen-log-system-dm015ljr4-phuriphats-projects-60c71432.vercel.app', 
+    'http://localhost:5173' 
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
-})); 
-app.use(express.json()); 
+}));
 
 app.use('/api/auth' , require('./routes/authRoutes')) ;
 app.use('/api/logs' , require('./routes/logRoutes')) ;
