@@ -173,7 +173,7 @@ const DashboardPage = () => {
         handleSearch(defaultFilters);
     }, [getDefaultFilters, handleSearch]);
 
-    const handExport = useCallback(async (type) => {
+    const handleExport = useCallback(async (type) => {
         try {
             setLoading(true);
 
@@ -237,7 +237,7 @@ const DashboardPage = () => {
                 }}
                 onPageChange={handlePageChange}
                 onLimitChange={handleLimitChange}
-                onExportExcel={() => handExport('excel')}
+                onExportExcel={() => handleExport('excel')}
                 onExportPDF={() => handleExport('pdf')}
             />
         </div>
