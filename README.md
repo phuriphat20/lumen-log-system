@@ -9,7 +9,7 @@
 
 ## 🛠️ Tech Stack :
 * Frontend: React, Vite, Tailwind CSS
-* Backend: Node.js (Version 22), Express.js
+* Backend: Node.js (Version 22)
 * Database: MongoDB Atlas
 * Authentication: JWT (JSON Web Token)
 * Review Branch:** `master`
